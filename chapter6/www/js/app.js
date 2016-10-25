@@ -2,23 +2,26 @@ angular.module('App', ['ionic'])
     
     .config(function ($stateProvider, $urlRouterProvider) {
 
-        // 검색용 상태 선언
         $stateProvider
+            // 검색용 상태 선언
             .state('search', {
                 url: '/search',
                 controller: 'SearchController',
                 templateUrl: 'views/search/search.html'
             })
+            // 설정 뷰를 위한 상태 선언
             .state('settings', {
                 url: '/settings',
                 controller: 'SettingsController',
                 templateUrl: 'views/settings/settings.html'
             })
+            // 날씨 뷰를 위한 상태 선언
             .state('weather', {
                 url: '/weather/:city/:lat/:lng',
                 controller: 'WeatherController',
                 templateUrl: 'views/weather/weather.html'
             });
+
 
         // 검색을 위한 상태를 기본 뷰로 사용
         $urlRouterProvider.otherwise('/search');
@@ -36,12 +39,16 @@ angular.module('App', ['ionic'])
         });
     })
 
+    // 컨트롤러를 만들고 서비스를 주입
     .controller('LeftMenuController', function ($scope, Locations) {
+        // Locations.data 배열을 스코프에 대입
         $scope.locations = Locations.data;
     })
 
+    // 해당 지역의 시간대를 변환하는 timezone 필터
     .filter('timezone', function () {
         return function (input, timezone) {
+            // 타임스탬프와 타임존 인자가 모두 주어질 때에만 타임스탬프를 변환
             if (input && timezone) {
                 var time = moment.tz(input * 1000, timezone);
                 return time.format('LT');
@@ -50,8 +57,10 @@ angular.module('App', ['ionic'])
         };
     })
 
+    // 강수 확률을 변환할 chance 필터
     .filter('chance', function () {
         return function (chance) {
+            // 값이 주어지면 10의 배수에 가까운 값으로 근사
             if (chance) {
                 var value = Math.round(chance * 10);
                 return value * 10;
@@ -60,7 +69,9 @@ angular.module('App', ['ionic'])
         };
     })
 
+    // 날씨 상태에 따라 아이콘을 변경하는 icons필터
     .filter('icons', function () {
+        // 기상 조건과 이에 대응하는 아이콘을 맵으로 구성하고, 상황에 맞는 아이콘을 반환
         var map = {
             'clear-day': 'ion-ios-sunny',
             'clear-night': 'ion-ios-moon',
@@ -107,6 +118,7 @@ angular.module('App', ['ionic'])
                 });
                 return index;
             },
+            // Locations에서 아이템 추가와 삭제를 토글링하는 메소드
             toggle: function (item) {
                 var index = Locations.getIndex(item);
                 if (index >= 0) {
@@ -125,6 +137,7 @@ angular.module('App', ['ionic'])
                     });
                 }
             },
+            // 주어진 아이템을 맨 위로 옮기거나 추가하는 primary메소드
             primary: function (item) {
                 var index = Locations.getIndex(item);
                 if (index >= 0) {
@@ -136,5 +149,6 @@ angular.module('App', ['ionic'])
             }
         };
 
+        // 데이터와 메소드를 가지는 Locations 객체 반환
         return Locations;
     });
