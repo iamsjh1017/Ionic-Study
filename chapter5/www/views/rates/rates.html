@@ -1,25 +1,43 @@
 <ion-view view-title="Current Rates" hide-back-button="true">
+
   <ion-nav-buttons side="primary">
     <button class="button" ng-click="openHelp($event)">About</button>
   </ion-nav-buttons>
+
   <ion-content>
+
     <ion-refresher on-refresh="load()" pulling-text="Pull to Refresh"></ion-refresher>
+
     <ion-list>
+
+        <!-- ngRepeat로 화폐들을 나열하되, 비활성화 된 것은 제외 -->
       <ion-item ng-repeat="currency in currencies | filter:{selected:true}" ui-sref="tabs.detail({currency: currency.code})">
         {{currency.code}} - {{currency.text}}
+
+          <!-- 현재 가격이 24시간 평균과 같을 때 보여지는 가격 상자 -->
         <span class="price" ng-if="currency.ticker.last == currency.ticker['24h_avg']">
           {{currency.ticker.last || '0.00'}}<br />0.00
         </span>
+
+          <!-- 현재 가격이 24시간 평균보다 낮을 때 보여지는 가격 상자 -->
         <span class="price negative" ng-if="currency.ticker.last < currency.ticker['24h_avg']">
           {{currency.ticker.last}}<br /><span class="icon ion-arrow-down-b"></span> {{currency.ticker['24h_avg'] - currency.ticker.last | number:2}}
         </span>
+
+          <!-- 현재 가격이 24시간 평균보다 높을때 보여지는 가격 상자 -->
         <span class="price positive" ng-if="currency.ticker.last > currency.ticker['24h_avg']">
           {{currency.ticker.last}}<br /><span class="icon ion-arrow-up-b"></span> {{currency.ticker.last - currency.ticker['24h_avg'] | number:2}}
         </span>
+
       </ion-item>
+
     </ion-list>
+
   </ion-content>
+
+    <!-- 데이터를 불러온 최종 시점을 푸터에 표시하기 위한 ionFooterBar -->
   <ion-footer-bar class="bar-dark">
     <h1 class="title">Updated {{currencies[0].ticker.timestamp | date:'mediumTime'}}</h1>
   </ion-footer-bar>
+
 </ion-view>

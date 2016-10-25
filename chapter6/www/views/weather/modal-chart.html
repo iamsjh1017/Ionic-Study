@@ -1,13 +1,22 @@
+<!-- ionModalView로 모달 템플릿을 감싸줘야 한다. -->
 <ion-modal-view>
-  <ion-header-bar class="bar-dark">
-    <h1 class="title">Sunrise, Sunset Chart</h1>
-    <button class="button button-clear" ng-click="hideModal()">Close</button>
-  </ion-header-bar>
-  <ion-content>
-    <div class="list">
-      <div class="item" collection-repeat="day in chart">
-        {{day.sunrise | date:'MMM d'}}: {{day.sunrise | date:'shortTime'}}, {{day.sunset | date:'shortTime'}}
-      </div>
-    </div>
-  </ion-content>
+
+    <!--닫기 버튼을 가지는 헤더 바 추가 -->
+    <ion-header-bar class="bar-dark">
+        <h1 class="title">Sunrise, Sunset Chart</h1>
+        <button class="button button-clear" ng-click="hideModal()">Close</button>
+    </ion-header-bar>
+
+
+    <ion-content>
+        <!-- 아이템을 포함하는 목록 사용 -->
+        <div class="list">
+            <!--ngRepeat와 비슷하게 컬렉션 반복을 사용-->
+            <div class="item" collection-repeat="day in chart">
+                <!-- 아이템의 날짜, 일출, 일몰 시간을 바인딩 -->
+                {{day.sunrise | date:'MMM d'}}: {{day.sunrise | date:'shortTime'}}, {{day.sunset | date:'shortTime'}}
+            </div>
+        </div>
+    </ion-content>
+
 </ion-modal-view>

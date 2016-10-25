@@ -122,10 +122,13 @@ angular.module('App', ['ionic'])
             toggle: function (item) {
                 var index = Locations.getIndex(item);
                 if (index >= 0) {
+                    // 확인 팝업을 만들고, 이를 정의하기 위한 객체를 전달, 기본값은 OK와 Cancel 버튼을 가짐
                     $ionicPopup.confirm({
+                        // 팝업의 제목과 내용을 지정
                         title: 'Are you sure?',
                         template: 'This will remove ' + Locations.data[index].city
                     }).then(function (res) {
+                        // 버튼이 선택되면 함수가 호출되고, 사용자가 아이템을 삭제하기 위해 OK를 눌렀다면 res는 true값을 가짐
                         if (res) {
                             Locations.data.splice(index, 1);
                         }
@@ -133,6 +136,7 @@ angular.module('App', ['ionic'])
                 } else {
                     Locations.data.push(item);
                     $ionicPopup.alert({
+                        // 제목을 지정하고 경고 팝업을 생성 기본값은 OK 버튼만 있음
                         title: 'Location saved'
                     });
                 }

@@ -1,3 +1,4 @@
+/* 모든 가격 상자를 위한 CSS 규칙들 */
 .item .price {
   font-weight: bold;
   font-size: 13px;
@@ -12,9 +13,11 @@
   padding: 6px;
   line-height: 1.2em;
 }
+/* 변화량이 양일 때 배경색을 변경 */
 .item .price.positive {
   background: #66cc33;
 }
+/* 변화량이 음일 때 배경색을 변경 */
 .item .price.negative {
   background: #ef4e3a;
 }
