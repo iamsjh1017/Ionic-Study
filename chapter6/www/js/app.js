@@ -97,6 +97,7 @@ angular.module('App', ['ionic'])
                 lat: 41.8781136,
                 lng: -87.6297982
             }],
+            // 특정지역의 인덱스 값을 얻기 위한 메소드
             getIndex: function (item) {
                 var index = -1;
                 angular.forEach(Locations.data, function (location, i) {
