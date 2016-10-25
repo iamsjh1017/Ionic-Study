@@ -1,0 +1,19 @@
+<ion-view view-title="Find Locations">
+    <ion-content>
+        <div class="list">
+            <!-- 검색 상자와 버튼이 포함된 리스트 아이템 -->
+            <div class="item item-input-inset">
+                <label class="item-input-wrapper">
+                    <input type="search" ng-model="model.term" placeholder="Search for a location">
+                </label>
+                <button class="button button-small button-positive" ng-click="search()">Submit</button>
+            </div>
+
+            <!-- 결과 목록을 순회하면서 주소와 날씨 뷰로 이동할 링크를 표시 -->
+            <div class="item" ng-repeat="result in results"
+                 ui-sref="weather({city: result.formatted_address, lat: result.geometry.location.lat, lng: result.geometry.location.lng})">
+                {{result.formatted_address}}
+            </div>
+        </div>
+    </ion-content>
+</ion-view>
