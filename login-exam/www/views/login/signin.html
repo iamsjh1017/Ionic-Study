@@ -1,0 +1,44 @@
+<ion-view view-title="Login">
+  <ion-content>
+    <div class="list list-inset">
+
+      <button class="button button-block button-positive" ng-click="loginWithPortal('facebook')">
+        페이스북
+      </button>
+
+      <button class="button button-block button-assertive" ng-click="loginWithPortal('google')">
+        구글
+      </button>
+
+      <button class="button button-block button-calm" ng-click="loginWithPortal('twitter')">
+        트위터
+      </button>
+
+      <label class="item item-input">
+      이메일 로그인
+      </label>
+
+      <label class="item item-input">
+        <input type="text" placeholder="Email" ng-model="useremail">
+      </label>
+
+      <label class="item item-input">
+        <input type="text" placeholder="Password" ng-model="password" >
+      </label>
+
+      <button class="button button-block button-balanced" ng-click="loginWithEmail(useremail, password)">
+        로그인
+      </button>
+
+      <button class="button button-block button-outline button-balanced" ui-sref="signup">
+        회원가입
+      </button>
+
+      <button class="button button-block button-calm" ui-sref="resetPassword">
+        비밀번호 초기화
+      </button>
+
+
+    </div>
+  </ion-content>
+</ion-view>
