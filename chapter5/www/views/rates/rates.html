@@ -1,16 +1,21 @@
+<!-- 환율 뷰에서는 뒤로가기 버튼을 숨기기 위해 hide-back-button 추가 -->
 <ion-view view-title="Current Rates" hide-back-button="true">
 
+    <!-- ionNavButtons로 내비게이션 바 안의 버튼을 선언할 수 있다. -->
   <ion-nav-buttons side="primary">
+      <!-- 버튼을 추가하고 openHelp($event)를 호출하도록 ngClick 사용 -->
     <button class="button" ng-click="openHelp($event)">About</button>
   </ion-nav-buttons>
 
   <ion-content>
 
+      <!-- ionRefresher 컴포넌트는 ionContent의 맨 처음에 삽입되어 데이터를 불러올 메소드를 호출한다. -->
     <ion-refresher on-refresh="load()" pulling-text="Pull to Refresh"></ion-refresher>
 
     <ion-list>
 
         <!-- ngRepeat로 화폐들을 나열하되, 비활성화 된 것은 제외 -->
+        <!-- ui-sref를 추가하고 tabs.detail 상태로 지정하며 파라미터로 화폐 코드를 넘김 -->
       <ion-item ng-repeat="currency in currencies | filter:{selected:true}" ui-sref="tabs.detail({currency: currency.code})">
         {{currency.code}} - {{currency.text}}
 
@@ -37,7 +42,7 @@
 
     <!-- 데이터를 불러온 최종 시점을 푸터에 표시하기 위한 ionFooterBar -->
   <ion-footer-bar class="bar-dark">
-    <h1 class="title">Updated {{currencies[0].ticker.timestamp | date:'mediumTime'}}</h1>
+      <h1 class="title">Updated {{currencies[0].ticker.timestamp | date:'mediumTime'}}</h1>
   </ion-footer-bar>
 
 </ion-view>

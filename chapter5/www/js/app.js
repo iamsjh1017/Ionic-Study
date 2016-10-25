@@ -24,10 +24,12 @@ angular.module('App', ['ionic', 'highcharts-ng'])
             })
             // 이력 뷰 선언
             .state('tabs.history', {
+                // 화폐 값을 전달하는 파라미터 추가
                 url: '/history?currency',
                 views: {
                     'history-tab': {
                         templateUrl: 'views/history/history.html',
+                        // 컨트롤러의 선언
                         controller: 'HistoryController'
                     }
                 }
@@ -42,10 +44,13 @@ angular.module('App', ['ionic', 'highcharts-ng'])
                     }
                 }
             })
+            // 화폐코드를 나타내는 파라미터인 :currency
             .state('tabs.detail', {
                 url: '/detail/:currency',
                 views: {
+                    // 환율 탭의 뷰를 재사용한다. 이상태도 같은 영역에 표시되기 때문이다.
                     'rates-tab': {
+                        // 템플릿과 컨트롤러 선언
                         templateUrl: 'views/detail/detail.html',
                         controller: 'DetailController'
                     }

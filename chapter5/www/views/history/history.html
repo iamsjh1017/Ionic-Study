@@ -1,15 +1,26 @@
+<!-- 이 뷰에서는 뒤로가기 버튼을 숨긴다. -->
 <ion-view view-title="Hourly Average Price" hide-back-button="true">
-  <ion-content>
-    <div class="list list-inset">
-      <label class="item item-input item-select">
-        <div class="input-label">
-          Currency
+
+    <ion-content>
+
+        <!-- 셀렉트 박스를 포함하기 위해 인셋 리스트를 사용한다.-->
+        <div class="list list-inset">
+            <label class="item item-input item-select">
+                <div class="input-label">
+                    Currency
+                </div>
+
+                <!-- 값의 변화를 추적하기 위해  ngChange와 ngModel이 적용된 HTML 셀렉트 박스를 사용한다. -->
+                <select ng-change="changeCurrency()" ng-model="history.currency">
+                    <option ng-repeat="currency in currencies | filter:{selected:true}" value="{{currency.code}}" ng-selected="history.currency == currency.code">
+                        {{currency.code}} - {{currency.text}}
+                    </option>
+                </select>
+            </label>
         </div>
-        <select ng-change="changeCurrency()" ng-model="history.currency">
-          <option ng-repeat="currency in currencies | filter:{selected:true}" value="{{currency.code}}" ng-selected="history.currency == currency.code">{{currency.code}} - {{currency.text}}</option>
-        </select>
-      </label>
-    </div>
-    <highchart config="chart"></highchart>
-  </ion-content>
+
+        <highchart config="chart"></highchart>
+
+    </ion-content>
+
 </ion-view>

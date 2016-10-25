@@ -1,19 +1,32 @@
 <ion-view view-title="Currencies">
-  <ion-nav-buttons side="primary">
-    <button class="button" ng-click="state.reordering = !state.reordering">Reorder</button>
-  </ion-nav-buttons>
-  <ion-content>
-    <ion-list show-reorder="state.reordering">
-      <ion-item class="item-toggle" ng-repeat="currency in currencies">
-        {{currency.code}} - {{currency.text}}
-        <label class="toggle toggle-balanced">
-        <input type="checkbox" ng-model="currency.selected">
-          <div class="track">
-            <div class="handle"></div>
-          </div>
-        </label>
-        <ion-reorder-button class="ion-navicon" on-reorder="move(currency, $fromIndex, $toIndex)"></ion-reorder-button>
-      </ion-item>
-    </ion-list>
-  </ion-content>
+
+    <!-- 재정렬 상태를 토글링하는 버튼 추가 -->
+    <ion-nav-buttons side="primary">
+        <button class="button" ng-click="state.reordering = !state.reordering">Reorder</button>
+    </ion-nav-buttons>
+
+    <ion-content>
+        <!-- 목록이 재정렬될 수 있음을 선언하기 위해 show-reorder 사용 -->
+        <ion-list show-reorder="state.reordering">
+            <!-- 토글 스타일을 위한 item-toggle클래스 추가 -->
+            <ion-item class="item-toggle" ng-repeat="currency in currencies">
+                {{currency.code}} - {{currency.text}}
+                <!-- toggle클래스를 가지는 라벨 선언 -->
+                <label class="toggle toggle-balanced">
+
+                    <!-- 체크 박스 입력에 currency.selected 모델 설정-->
+                    <input type="checkbox" ng-model="currency.selected">
+
+                    <!-- CSS가 토글 아이콘을 생성하는데 필요한 엘리먼트 추가-->
+                    <div class="track">
+                        <div class="handle"></div>
+                    </div>
+                </label>
+
+                <!-- ionReorderButton이 꼭 포함되어야 하고, 아이템이 이동한 후에는 메소드를 호출해야 한다. -->
+                <ion-reorder-button class="ion-navicon" on-reorder="move(currency, $fromIndex, $toIndex)"></ion-reorder-button>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+
 </ion-view>
