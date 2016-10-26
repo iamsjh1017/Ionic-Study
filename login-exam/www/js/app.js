@@ -1,7 +1,12 @@
-angular.module('App', ['ionic', 'firebase'])
+var app = angular.module('App', ['ionic', 'firebase', 'ngCordova', 'ngCordovaOauth'])
   .config(function ($stateProvider, $urlRouterProvider) {
-
     $stateProvider
+      // 로그인 메인 화면
+      .state('loginMain', {
+        url: '/loginMain',
+        controller: 'SigninController',
+        templateUrl: 'views/login/loginMain.html'
+      })
       // 로그인화면
       .state('signin', {
         url: '/signin',
@@ -23,12 +28,12 @@ angular.module('App', ['ionic', 'firebase'])
       // 비밀번호 재설정 화면
       .state('resetPassword', {
         url: '/resetPassword',
-        controller: 'resetPasswordController',
+        controller: 'ResetPasswordController',
         templateUrl: 'views/login/resetPassword.html'
       });
 
     // 로그인 화면을 기본 뷰로 사용
-    $urlRouterProvider.otherwise('/signin');
+    $urlRouterProvider.otherwise('/loginMain');
   })
 
   .run(function ($ionicPlatform) {
@@ -41,6 +46,11 @@ angular.module('App', ['ionic', 'firebase'])
       }
     });
   })
+  .factory('Auth', ['$firebaseAuth',
+    function ($firebaseAuth) {
+      return $firebaseAuth();
+    }
+  ])
 
   //localStorage사용을 위한 셋팅
   .factory('$localstorage', ['$window', function ($window) {

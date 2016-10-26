@@ -1,25 +1,21 @@
-<ion-view view-title="Registry">
+<ion-view view-title="회원가입">
   <ion-content>
     <div class="list list-inset">
 
       <label class="item item-input">
-        <input type="text" placeholder="Nickname">
+        <input type="text" placeholder="NickName" ng-model="displayName" required>
       </label>
 
       <label class="item item-input">
-        <input type="text" placeholder="Email">
+        <input type="email" placeholder="Email" ng-model="userEmail" required>
       </label>
 
       <label class="item item-input">
-        <input type="text" placeholder="Password">
+        <input type="password" placeholder="영문/숫자혼합 6~20자리" ng-model="password" required>
       </label>
 
-      <button class="button button-block button-balanced">
+      <button class="button button-block button-balanced" ng-click="register(displayName, userEmail, password)">
         회원가입
-      </button>
-
-      <button class="button button-block button-outline button-balanced">
-        가입취소
       </button>
 
     </div>

@@ -1,6 +1,10 @@
-<ion-view view-title="Login">
+<ion-view view-title="로그인">
   <ion-content>
     <div class="list list-inset">
+
+      <label class="item item-input">
+        소셜 로그인
+      </label>
 
       <button class="button button-block button-positive" ng-click="loginWithPortal('facebook')">
         페이스북
@@ -15,27 +19,23 @@
       </button>
 
       <label class="item item-input">
-      이메일 로그인
+      이메일 로그인(메일 인증 필요)
       </label>
 
       <label class="item item-input">
-        <input type="text" placeholder="Email" ng-model="useremail">
+        <input type="text" placeholder="Email" ng-model="useremail" required>
       </label>
 
       <label class="item item-input">
-        <input type="text" placeholder="Password" ng-model="password" >
+        <input type="password" placeholder="Password" ng-model="password" required>
       </label>
 
       <button class="button button-block button-balanced" ng-click="loginWithEmail(useremail, password)">
-        로그인
-      </button>
-
-      <button class="button button-block button-outline button-balanced" ui-sref="signup">
-        회원가입
+        이메일 로그인
       </button>
 
       <button class="button button-block button-calm" ui-sref="resetPassword">
-        비밀번호 초기화
+        Forget Password?
       </button>
 
 
