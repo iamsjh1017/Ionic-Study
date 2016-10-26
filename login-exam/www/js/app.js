@@ -4,19 +4,13 @@ var app = angular.module('App', ['ionic', 'firebase', 'ngCordova', 'ngCordovaOau
       // 로그인 메인 화면
       .state('loginMain', {
         url: '/loginMain',
-        controller: 'SigninController',
+        controller: 'LoginMainController',
         templateUrl: 'views/login/loginMain.html'
       })
       // 로그인화면
       .state('signin', {
         url: '/signin',
         controller: 'SigninController',
-        templateUrl: 'views/login/signin.html'
-      })
-      // 로그인 완료 화면
-      .state('signinResult', {
-        url: '/signinResult',
-        controller: 'SigninResultController',
         templateUrl: 'views/login/signin.html'
       })
       // 회원가입화면

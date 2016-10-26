@@ -22,7 +22,9 @@ app.controller('SigninController', function ($scope, Auth, $location, $localstor
           }
           console.log('이메일 로그인 성공');
           // TODO: 로그인 성공 후 $localstorage에 유저정보 저장
-          var user = result.user;
+          $localstorage.setObject("user", result);
+          console.log(result);
+          console.log(result.email);
 
           // 로그인 성공후 페이지 이동
           $location.path('/loginMain');
@@ -48,13 +50,8 @@ app.controller('SigninController', function ($scope, Auth, $location, $localstor
       switch (providerName) {
 
         case "google":
-          /*
-          var provider = new firebase.auth.GoogleAuthProvider();
-          provider.addScope('https://www.googleapis.com/auth/plus.login');
-          */
-
           $cordovaOauth.google("506479374537-4o2pa5ghuj68ocudca9fbohmikfsth56.apps.googleusercontent.com", ["email", "profile"]).then(function(result) {
-            $scope.auth.$authWithOAuthToken("facebook", result.access_token).then(function (authData) {
+            $scope.auth.$authWithOAuthToken("google", result.access_token).then(function (authData) {
               alert("로그인성공");
               console.log("소셜로그인성공")
               console.log(JSON.stringify(authData));
@@ -64,15 +61,9 @@ app.controller('SigninController', function ($scope, Auth, $location, $localstor
           }, function(error) {
             console.error("ERROR: " + error);
           });
-
           break;
 
         case "facebook":
-          /*
-          var provider = new firebase.auth.FacebookAuthProvider();
-          provider.addScope('user_birthday');
-          */
-
           // 페북에서 Oauth토근 가져와서
           $cordovaOauth.facebook("947628548702706", ["email"], {"auth_type": "rerequest"}).then(function (result) {
             // Firebase에 토큰 가져가서 인증
@@ -80,6 +71,7 @@ app.controller('SigninController', function ($scope, Auth, $location, $localstor
               alert("로그인성공");
               console.log("소셜로그인성공")
               console.log(JSON.stringify(authData));
+              $localstorage.setObject('user', authData)
               $location.path('/loginMain');
             }, function (error) {
               console.error("ERROR: " + error);
@@ -87,48 +79,19 @@ app.controller('SigninController', function ($scope, Auth, $location, $localstor
           }, function (error) {
             console.error("ERROR: " + error);
           });
-
           break;
 
         case "twitter":
-          // var provider = new firebase.auth.TwitterAuthProvider();
-          // 인증한 곳으로 부터 추가로 가져올 정보가 있으면
-          // provider.addScope('user_birthday');
-
           $cordovaOauth.twitter("CLIENT_ID_HERE", "CLIENT_SECRET_HERE").then(function(result) {
             console.log(JSON.stringify(result));
           }, function(error) {
-            console.log(JSON.stringify(error));
+            console.error("ERROR: " + error);
           });
           break;
 
       }
-
-
-      /*
-       $scope.auth.$signInWithPopup(provider).then(function (result) {
-       console.log("소셜로그인성공")
-       console.dir(result.user.uid);
        // TODO: 로그인 성공 후 $localstorage에 인증 정보 저장
-       var user = result.user;
-       var token = result.credential.accessToken;
-       var secret = result.credential.secret;
-
        // TODO: MySQL DB 유저정보에 있는지 확인하고 있으면 UPDATE 없으면 INSERT
-
-       // 로그인 성공후 페이지 이동
-       $location.path('/loginMain');
-       }).catch(function (error) {
-       // TODO: 로그인관련 공통 에러 처리 메소드 작성
-       var errorCode = error.code;
-       var errorMessage = error.message;
-       if (errorCode === 'auth/account-exists-with-different-credential') {
-       console.log('You have already signed up with a different auth provider for that email.');
-       } else {
-       console.log(error);
-       }
-       });
-       */
     }
   }
 
@@ -149,7 +112,6 @@ app.controller('SigninController', function ($scope, Auth, $location, $localstor
             // result.provider;
 
             // TODO: 이메일 인증 처리
-            $scope.auth.$
 
             // 회원가입 완료후 로그인페이지로 이동
             $location.path('/signin');
@@ -177,6 +139,10 @@ app.controller('SigninController', function ($scope, Auth, $location, $localstor
   .controller('LoginMainController', ['$scope', 'Auth', '$location', '$localstorage',
     function ($scope, Auth, $location, $localstorage) {
       $scope.auth = Auth;
+      var user = $localstorage.get("user");
+      console.log(user);
+      $scope.user = user;
+      $scope.img = "/img/ionic.png";
 
     }])
 
