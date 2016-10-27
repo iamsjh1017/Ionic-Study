@@ -52,26 +52,34 @@ app.controller('SigninController', function ($scope, $auth, $location, $localsto
 
       switch (providerName) {
         case "google":
-          $cordovaOauth.google("506479374537-4o2pa5ghuj68ocudca9fbohmikfsth56.apps.googleusercontent.com", ["email", "profile"]).then(function(result) {
-            var credential = new firebase.auth.GoogleAuthProvider.credential(result.id_token);
-            console.log('----------------credential--------------');
-            console.log(result);
-            console.log(result.id_token);
-            console.log(result.access_token);
-            console.log(credential);
-            console.log('----------------------------------------');
-            $scope.auth.$signInWithCredential(credential).then(function (authData) {
-              $myPopup.show('알림', '구글 로그인성공');
-              $localstorage.setObject('user', JSON.stringify(authData));
-              $location.path('/loginMain');
+          if(ionic.Platform.isWebView()) {
+            $cordovaOauth.google("506479374537-4o2pa5ghuj68ocudca9fbohmikfsth56.apps.googleusercontent.com" + "&include_profile=true", ["email", "profile"]).then(function (result) {
+              var credential = firebase.auth.GoogleAuthProvider.credential(result.id_token);
+              console.log('----------------credential--------------');
+              console.log(result);
+              console.log(result.id_token);
+              console.log(result.access_token);
+              console.log(credential);
+              console.log('----------------------------------------');
+              firebase.auth().signInWithCredential(credential).then(function (authData) {
+                $myPopup.show('알림', '구글 로그인성공');
+                $localstorage.setObject('user', JSON.stringify(authData));
+                $location.path('/loginMain');
+              }, function (error) {
+                console.error("firebase: " + error);
+              });
             }, function (error) {
-              console.error("firebase: " + error);
+              console.error("ERROR: " + error);
             });
-          }, function(error) {
-            console.error("ERROR: " + error);
-          });
+          } else {
+            var provider = new firebase.auth.GoogleAuthProvider();
+            provider.addScope('email');
+            provider.addScope('profile');
+            firebase.auth().signInWithPopup(provider).then(function (result) {
+              $myPopup.show('알림', '구글 로그인성공');
+            });
+          }
           break;
-
 
         case "facebook":
           // 페북에서 Oauth토근 가져와서
@@ -91,9 +99,9 @@ app.controller('SigninController', function ($scope, $auth, $location, $localsto
           break;
 
         case "twitter":
-          $cordovaOauth.twitter("CLIENT_ID_HERE", "CLIENT_SECRET_HERE").then(function(result) {
+          $cordovaOauth.twitter("CLIENT_ID_HERE", "CLIENT_SECRET_HERE").then(function (result) {
             console.log(JSON.stringify(result));
-          }, function(error) {
+          }, function (error) {
             console.error("ERROR: " + error);
           });
           break;
@@ -106,8 +114,8 @@ app.controller('SigninController', function ($scope, $auth, $location, $localsto
 })
 
 // 회원가입 컨트롤러
-  .controller('SignupController', ['$scope', '$auth', '$location', '$localstorage', '$myPopup',
-    function ($scope, $auth, $location, $localstorage, $myPopup) {
+  .controller('SignupController', ['$scope', '$auth', '$location', '$localstorage', '$myPopup', '$http',
+    function ($scope, $auth, $location, $localstorage, $myPopup, $http) {
       $scope.auth = $auth;
 
 
@@ -133,13 +141,33 @@ app.controller('SigninController', function ($scope, $auth, $location, $localsto
             console.log('providerId :  ' + providerId);
             console.log('providerData : ' + providerData);
 
-            // 인증 메일 발송
-            firebase.auth().currentUser.sendEmailVerification().then(function() {
-              $myPopup.show('회원가입 성공', '계정 활성화를 위해 이메일 인증을 해주시기 바랍니다.');
+            $http({
+              url: '',
+              method: 'POST',
+              data: $.param({
+                userUID: uid,
+                displayName: displayName,
+                email: email,
+                photoURL: photoURL,
+                providerName: providerId,
+                providerUID: providerData.uid,
+                providerDisplayName: providerData.displayName,
+                providerPhotoURL: providerData.photoUrl,
+                providerEmail: providerData.email
+              }),
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+              }
+            }).success(function () {
+              console.log('DB입력 성공');
+              // 인증 메일 발송
+              firebase.auth().currentUser.sendEmailVerification().then(function () {
+                $myPopup.show('회원가입 성공', '계정 활성화를 위해 이메일 인증을 해주시기 바랍니다.');
+                // 회원가입 완료후 로그인페이지로 이동
+                $location.path('/signin');
+              });
             });
 
-            // 회원가입 완료후 로그인페이지로 이동
-            $location.path('/signin');
           })
           .catch(function (error) {
             console.log(error);
@@ -154,10 +182,10 @@ app.controller('SigninController', function ($scope, $auth, $location, $localsto
     function ($scope, $auth, $location, $localstorage, $myPopup) {
       $scope.auth = $auth;
       $scope.resetPassword = function (useremail) {
-        firebase.auth().sendPasswordResetEmail(useremail).then(function() {
+        firebase.auth().sendPasswordResetEmail(useremail).then(function () {
           $myPopup.show('알림', '비밀번호 초기화 메일이 발송 되었습니다. 이메일을 확인해 주세요!');
           $location.path('/signin');
-        }).catch(function(error) {
+        }).catch(function (error) {
           var errorCode = error.code;
           var errorMessage = error.message;
           if (errorCode == 'auth/invalid-email') {
@@ -183,8 +211,6 @@ app.controller('SigninController', function ($scope, $auth, $location, $localsto
       } else {
 
       };
-
-
 
       $scope.user = user;
       $scope.img = '/img/ionic.png';

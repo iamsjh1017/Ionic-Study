@@ -40,6 +40,8 @@ var app = angular.module('App', ['ionic', 'firebase', 'ngCordova', 'ngCordovaOau
       }
     });
   })
+
+  // 파이어베이스 인증 서비스
   .factory('$auth', ['$firebaseAuth',
     function ($firebaseAuth) {
       return $firebaseAuth();
@@ -64,7 +66,28 @@ var app = angular.module('App', ['ionic', 'firebase', 'ngCordova', 'ngCordovaOau
     }
   }])
 
-  // 알림창 사용을 위한 셋팅
+  // TODO: 로그아웃, 정보변경, 회원탈퇴 등등
+  .factory('$auth', ['$window', function ($window) {
+    return {
+      login: function () {
+
+      },
+      logout: function () {
+
+      },
+      register: function () {
+
+      },
+      resign: function () {
+        
+      },
+      mod: function () {
+        
+      }
+    }
+  }])
+
+  // 팝업창 사용을 위한 셋팅
   .factory('$myPopup', ['$ionicPopup', function ($ionicPopup) {
     return {
       show: function (title, template) {
