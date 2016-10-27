@@ -3,22 +3,6 @@
     <div class="list list-inset">
 
       <label class="item item-input">
-        소셜 로그인
-      </label>
-
-      <button class="button button-block button-positive" ng-click="loginWithPortal('facebook')">
-        페이스북
-      </button>
-
-      <button class="button button-block button-assertive" ng-click="loginWithPortal('google')">
-        구글
-      </button>
-
-      <button class="button button-block button-calm" ng-click="loginWithPortal('twitter')">
-        트위터
-      </button>
-
-      <label class="item item-input">
       이메일 로그인(메일 인증 필요)
       </label>
 
@@ -35,7 +19,23 @@
       </button>
 
       <button class="button button-block button-calm" ui-sref="resetPassword">
-        Forget Password?
+        Forgot Password?
+      </button>
+
+      <label class="item item-input">
+        소셜 로그인(아직안됨)
+      </label>
+
+      <button class="button button-block button-assertive" ng-click="loginWithPortal('google')">
+        구글
+      </button>
+
+      <button class="button button-block button-positive" ng-click="loginWithPortal('facebook')">
+        페이스북
+      </button>
+
+      <button class="button button-block button-calm" ng-click="loginWithPortal('twitter')">
+        트위터
       </button>
 
 

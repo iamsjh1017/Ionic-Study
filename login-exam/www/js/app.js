@@ -40,7 +40,7 @@ var app = angular.module('App', ['ionic', 'firebase', 'ngCordova', 'ngCordovaOau
       }
     });
   })
-  .factory('Auth', ['$firebaseAuth',
+  .factory('$auth', ['$firebaseAuth',
     function ($firebaseAuth) {
       return $firebaseAuth();
     }
@@ -60,6 +60,19 @@ var app = angular.module('App', ['ionic', 'firebase', 'ngCordova', 'ngCordovaOau
       },
       getObject: function (key) {
         return JSON.parse($window.localStorage[key] || '{}');
+      }
+    }
+  }])
+
+  // 알림창 사용을 위한 셋팅
+  .factory('$myPopup', ['$ionicPopup', function ($ionicPopup) {
+    return {
+      show: function (title, template) {
+        $ionicPopup.alert({
+          title: title,
+          template: template
+        })
+          .then(function(res) {});
       }
     }
   }]);
