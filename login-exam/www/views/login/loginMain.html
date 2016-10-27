@@ -1,10 +1,10 @@
 <ion-view view-title="Account">
   <ion-content>
     <div class="list list-inset">
-      <button class="button button-block button-calm" ui-sref="signin">
+      <button class="button button-block button-calm" ui-sref="signin" ng-hide="false">
         로그인
       </button>
-      <button class="button button-block button-calm" >
+      <button class="button button-block button-calm" ng-hide="true" >
         로그아웃
       </button>
       <button class="button button-block button-calm" ui-sref="signup">
@@ -15,7 +15,7 @@
       </button>
 
       <div class="item item-body">
-        <img class="full-image" ng-src="{{ img }}">
+        유저정보
         <p>
           {{ user }}
         </p>
