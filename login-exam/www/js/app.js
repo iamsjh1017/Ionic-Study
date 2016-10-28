@@ -67,7 +67,7 @@ var app = angular.module('App', ['ionic', 'firebase', 'ngCordova', 'ngCordovaOau
   }])
 
   // TODO: 로그아웃, 정보변경, 회원탈퇴 등등
-  .factory('$auth', ['$window', function ($window) {
+  .factory('$auth123', ['$window', function ($window) {
     return {
       login: function () {
 
@@ -79,10 +79,10 @@ var app = angular.module('App', ['ionic', 'firebase', 'ngCordova', 'ngCordovaOau
 
       },
       resign: function () {
-        
+
       },
       mod: function () {
-        
+
       }
     }
   }])

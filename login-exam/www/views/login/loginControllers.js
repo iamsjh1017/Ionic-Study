@@ -107,10 +107,8 @@ app.controller('SigninController', function ($scope, $auth, $location, $localsto
           break;
 
       }
-
     }
   }
-
 })
 
 // 회원가입 컨트롤러
@@ -129,7 +127,7 @@ app.controller('SigninController', function ($scope, $auth, $location, $localsto
             // TODO: 회원가입 성공시 MySQL DB에 Insert
             var uid = result.uid;
             result.displayName = username;
-            var displayName = esult.displayName;
+            var displayName = result.displayName;
             var email = result.email;
             var photoURL = result.photoURL;
             var providerId = result.providerId;
@@ -142,24 +140,24 @@ app.controller('SigninController', function ($scope, $auth, $location, $localsto
             console.log('providerData : ' + providerData);
 
             $http({
-              url: '',
+              url: 'http://localhost:3001/rscamper-server/app/user/insert',
               method: 'POST',
               data: $.param({
-                userUID: uid,
+                userUid: uid,
                 displayName: displayName,
                 email: email,
-                photoURL: photoURL,
+                photoUrl: photoURL,
                 providerName: providerId,
-                providerUID: providerData.uid,
+                providerUid: providerData.uid,
                 providerDisplayName: providerData.displayName,
-                providerPhotoURL: providerData.photoUrl,
+                providerPhotoUrl: providerData.photoUrl,
                 providerEmail: providerData.email
               }),
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
               }
             }).success(function () {
-              console.log('DB입력 성공');
+              console.log('회원정보 MYSQL DB입력 성공');
               // 인증 메일 발송
               firebase.auth().currentUser.sendEmailVerification().then(function () {
                 $myPopup.show('회원가입 성공', '계정 활성화를 위해 이메일 인증을 해주시기 바랍니다.');
