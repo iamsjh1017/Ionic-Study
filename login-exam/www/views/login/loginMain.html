@@ -1,10 +1,10 @@
 <ion-view view-title="Account">
   <ion-content>
     <div class="list list-inset">
-      <button class="button button-block button-calm" ui-sref="signin" ng-hide="false">
+      <button class="button button-block button-calm" ui-sref="signin">
         로그인
       </button>
-      <button class="button button-block button-calm" ng-hide="true" >
+      <button class="button button-block button-calm" ng-click="logout()">
         로그아웃
       </button>
       <button class="button button-block button-calm" ui-sref="signup">
@@ -16,9 +16,9 @@
 
       <div class="item item-body">
         유저정보
-        <p>
-          {{ user }}
-        </p>
+        <p> UID {{ user.uid }} </p>
+        <p> Email {{ user.email }} </p>
+        <p> DisplayName {{ user.displayName }} </p>
       </div>
 
     </div>

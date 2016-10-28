@@ -14,7 +14,7 @@
         <input type="password" placeholder="Password" ng-model="password" required>
       </label>
 
-      <button class="button button-block button-balanced" ng-click="loginWithEmail(useremail, password)">
+      <button class="button button-block button-balanced" ng-click="loginWithEmail(useremail, password, '/loginMain')">
         이메일 로그인
       </button>
 
@@ -26,15 +26,15 @@
         소셜 로그인(아직안됨)
       </label>
 
-      <button class="button button-block button-assertive" ng-click="loginWithPortal('google')">
+      <button class="button button-block button-assertive" ng-click="loginWithPortal('google', '/loginMain')">
         구글
       </button>
 
-      <button class="button button-block button-positive" ng-click="loginWithPortal('facebook')">
+      <button class="button button-block button-positive" ng-click="loginWithPortal('facebook', '/loginMain')">
         페이스북
       </button>
 
-      <button class="button button-block button-calm" ng-click="loginWithPortal('twitter')">
+      <button class="button button-block button-calm" ng-click="loginWithPortal('twitter', '/loginMain')">
         트위터
       </button>
 
