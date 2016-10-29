@@ -9,6 +9,7 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
         Localstorage.remove('user');
         console.log('로그아웃');
         $firebaseAuth().$signOut();
+        MyPopup.show('알림', '로그아웃 되었습니다.');
       } else {
         $firebaseAuth().$signInWithEmailAndPassword(useremail, password)
           .then(function (result) {
@@ -51,6 +52,7 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
         console.log('로그아웃');
       } else {
         switch (providerName) {
+
           case "google":
             if (ionic.Platform.isWebView()) {
               $cordovaOauth.google("506479374537-4o2pa5ghuj68ocudca9fbohmikfsth56.apps.googleusercontent.com" + "&include_profile=true", ["email", "profile"]).then(function (result) {
@@ -61,9 +63,9 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
                 console.log(result.access_token);
                 console.log(credential);
                 console.log('----------------------------------------');
-                firebase.auth().signInWithCredential(credential).then(function (authData) {
+                firebase.auth().signInWithCredential(credential).then(function (result) {
                   MyPopup.show('알림', '구글 로그인성공');
-                  Localstorage.setObject('user', JSON.stringify(authData));
+                  Localstorage.setObject('user', result);
                   $location.path(redirecTo);
                 }, function (error) {
                   console.error("firebase: " + error);
@@ -76,7 +78,9 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
               provider.addScope('email');
               provider.addScope('profile');
               firebase.auth().signInWithPopup(provider).then(function (result) {
-                $myPopup.show('알림', '구글 로그인성공');
+                MyPopup.show('알림', '구글 로그인성공');
+                Localstorage.setObject('user', result);
+                $location.path(redirecTo);
               });
             }
             break;
@@ -114,6 +118,7 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
     logout: function () {
       $firebaseAuth().$signOut();
       Localstorage.remove('user');
+      MyPopup.show('알림', '로그아웃 되었습니다.');
       console.log('로그아웃');
     },
 
@@ -193,10 +198,22 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
     // 회원탈퇴 메소드
     resign: function () {
       var user = firebase.auth().currentUser;
+      var uid = user.uid;
       user.delete().then(function() {
-        // User deleted.
+        $http({
+          url: 'http://localhost:3001/rscamper-server/app/user/delete',
+          method: 'POST',
+          data: $.param({
+            userUid: uid
+          }),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+          }
+        }).success(function () {
+          MyPopup.show('성공', '회원탈퇴가 완료되었습니다.');
+        });
       }, function(error) {
-        // An error happened.
+        MyPopup.show('에러', error);
       });
     },
 
