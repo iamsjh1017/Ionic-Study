@@ -3,15 +3,16 @@
     <div class="list list-inset">
 
       <label class="item item-input">
-        <input type="text" placeholder="NickName" ng-model="displayname" required>
+        <input type="text" placeholder="NickName" ng-model="displayname" ng-required>
       </label>
 
       <label class="item item-input">
-        <input type="email" placeholder="Email" ng-model="useremail" required>
+        <input type="email" placeholder="Email" ng-model="useremail" ng-required>
       </label>
 
       <label class="item item-input">
-        <input type="password" placeholder="영문/숫자혼합 6~20자리" ng-model="password" required>
+        <input type="password" placeholder="영문/숫자혼합 6~20자리" ng-model="password" ng-required="true">
+        <!--<input type="password" placeholder="영문/숫자혼합 6~20자리" ng-model="password" required="true" ng-pattern="/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/">-->
       </label>
 
       <button class="button button-block button-balanced" ng-click="register(displayname, useremail, password, '/signin')">

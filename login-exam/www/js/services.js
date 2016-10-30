@@ -20,7 +20,9 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
               return;
             }
             console.log('이메일 로그인 성공');
-            // 로그인 성공 후 Localstorage에 유저정보 저장
+            // TODO: 로그인 성공 후 MySQL DB에서 UID로 유저정보 가져와서 Localstorage에 유저정보 저장
+            var uid = result.uid;
+
             Localstorage.setObject("user", result);
 
             // 로그인 성공후 페이지 이동
@@ -41,7 +43,7 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
     },
 
     // 소셜 로그인 메소드
-    loginWithSocial: function (providerName, redirecTo) {
+    loginWithSocial: function (providerName, redirectTo) {
 
       // TODO: 소셜 로그인 메소드
       // TODO: 로그인 성공 후 $localstorage에 인증 정보 저장
@@ -50,23 +52,19 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
         $firebaseAuth().$signOut();
         Localstorage.remove('user');
         console.log('로그아웃');
+        $firebaseAuth().$signOut();
+        MyPopup.show('알림', '로그아웃 되었습니다.');
       } else {
-        switch (providerName) {
 
+        switch (providerName) {
           case "google":
             if (ionic.Platform.isWebView()) {
               $cordovaOauth.google("506479374537-4o2pa5ghuj68ocudca9fbohmikfsth56.apps.googleusercontent.com" + "&include_profile=true", ["email", "profile"]).then(function (result) {
                 var credential = firebase.auth.GoogleAuthProvider.credential(result.id_token);
-                console.log('----------------credential--------------');
-                console.log(result);
-                console.log(result.id_token);
-                console.log(result.access_token);
-                console.log(credential);
-                console.log('----------------------------------------');
                 firebase.auth().signInWithCredential(credential).then(function (result) {
                   MyPopup.show('알림', '구글 로그인성공');
-                  Localstorage.setObject('user', result);
-                  $location.path(redirecTo);
+                  Localstorage.setObject('user', result.user);
+                  $location.path(redirectTo);
                 }, function (error) {
                   console.error("firebase: " + error);
                 });
@@ -79,37 +77,62 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
               provider.addScope('profile');
               firebase.auth().signInWithPopup(provider).then(function (result) {
                 MyPopup.show('알림', '구글 로그인성공');
-                Localstorage.setObject('user', result);
-                $location.path(redirecTo);
+                Localstorage.setObject('user', result.user);
+                $location.path(redirectTo);
               });
             }
             break;
 
           case "facebook":
-            // 페북에서 Oauth토근 가져와서
-            $cordovaOauth.facebook("947628548702706", ["email"]).then(function (result) {
-              // Firebase에 토큰 가져가서 인증
-              $firebaseAuth().$authWithOAuthToken("facebook", result.access_token).then(function (authData) {
-                console.log("소셜로그인성공")
-                console.log(JSON.stringify(authData));
-                $localstorage.setObject('user', authData)
-                $location.path('/loginMain');
+
+            if (ionic.Platform.isWebView()) {
+              // 페북에서 Oauth토근 가져와서
+              $cordovaOauth.facebook("947628548702706", ["email"]).then(function (result) {
+                // Firebase에 토큰 가져가서 인증
+                $firebaseAuth().$authWithOAuthToken("facebook", result.access_token).then(function (authData) {
+                  console.log("소셜로그인성공")
+                  console.log(JSON.stringify(authData));
+                  $localstorage.setObject('user', authData)
+                  $location.path('/loginMain');
+                }, function (error) {
+                  console.error("ERROR: " + error);
+                });
               }, function (error) {
                 console.error("ERROR: " + error);
               });
-            }, function (error) {
-              console.error("ERROR: " + error);
-            });
+            } else {
+              var provider = new firebase.auth.FacebookAuthProvider();
+              firebase.auth().signInWithPopup(provider).then(function (result) {
+                MyPopup.show('알림', '페이스북 로그인성공');
+                Localstorage.setObject('user', result.user);
+                $location.path(redirectTo);
+              });
+            }
             break;
 
           case "twitter":
-            $cordovaOauth.twitter("CLIENT_ID_HERE", "CLIENT_SECRET_HERE").then(function (result) {
-              console.log(JSON.stringify(result));
-            }, function (error) {
-              console.error("ERROR: " + error);
-            });
+            if (ionic.Platform.isWebView()) {
+              $cordovaOauth.twitter("O0aubI3UlDJzlzaAVLGJ3BqVf", "qwyWjtCq0TDIXCB8PsoM854B30Pu7ANjKYAyLBaCOYFUWGxeUm").then(function (result) {
+                $firebaseAuth().$authWithOAuthToken("twitter", result.access_token).then(function (authData) {
+                  console.log("소셜로그인성공")
+                  console.log(JSON.stringify(authData));
+                  $localstorage.setObject('user', authData)
+                  $location.path('/loginMain');
+                }, function (error) {
+                  console.error("ERROR: " + error);
+                });
+              }, function (error) {
+                console.error("ERROR: " + error);
+              });
+            } else {
+              var provider = new firebase.auth.TwitterAuthProvider();
+              firebase.auth().signInWithPopup(provider).then(function (result) {
+                MyPopup.show('알림', '트위터 로그인성공');
+                Localstorage.setObject('user', result.user);
+                $location.path(redirectTo);
+              });
+            }
             break;
-
         }
       }
     },
@@ -158,6 +181,8 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
             // 인증 메일 발송
             firebase.auth().currentUser.sendEmailVerification().then(function () {
               MyPopup.show('회원가입 성공', '계정 활성화를 위해 이메일 인증을 해주시기 바랍니다.');
+              $firebaseAuth().$signOut();
+              Localstorage.remove('user');
               // 회원가입 완료후 로그인페이지로 이동
               $location.path(redirectTo);
             });
@@ -202,7 +227,7 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
       user.delete().then(function() {
         $http({
           url: 'http://localhost:3001/rscamper-server/app/user/delete',
-          method: 'POST',
+          method: 'DELETE',
           data: $.param({
             userUid: uid
           }),
@@ -211,6 +236,8 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
           }
         }).success(function () {
           MyPopup.show('성공', '회원탈퇴가 완료되었습니다.');
+          $firebaseAuth().$signOut();
+          Localstorage.remove('user');
         });
       }, function(error) {
         MyPopup.show('에러', error);
@@ -223,8 +250,6 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
     }
   };
 })
-
-
 
 // [유틸] localStorage사용을 위한 셋팅
   .factory('Localstorage', ['$window', function ($window) {
@@ -254,6 +279,13 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
         $ionicPopup.alert({
           title: title,
           template: template
+        })
+          .then(function (res) {
+          });
+      },
+      confirm: function (title, template) {
+        $ionicPopup.confirm({
+
         })
           .then(function (res) {
           });

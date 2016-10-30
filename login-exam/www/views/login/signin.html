@@ -6,14 +6,15 @@
       이메일 로그인(메일 인증 필요)
       </label>
 
-      <form>
-      <label class="item item-input">
-        <input type="text" placeholder="Email" ng-model="useremail" required>
-      </label>
+      <form name="signinForm">
+        <label class="item item-input">
+          <input name="useremail" type="email" placeholder="Email" ng-model="useremail" ng-required="true">
+        </label>
 
-      <label class="item item-input">
-        <input type="password" placeholder="Password" ng-model="password" required>
-      </label>
+        <label class="item item-input">
+          <input name="password" type="password" placeholder="Password" ng-model="password" ng-required="true">
+          <!--<input name="password" type="password" placeholder="Password" ng-model="password" ng-required="true" ng-pattern="/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/">-->
+        </label>
       </form>
 
       <button class="button button-block button-balanced" ng-click="loginWithEmail(useremail, password, '/loginMain')">
@@ -39,7 +40,6 @@
       <button class="button button-block button-calm" ng-click="loginWithPortal('twitter', '/loginMain')">
         <i class="icon ion-social-twitter-outline"></i> Twitter
       </button>
-
 
     </div>
   </ion-content>
