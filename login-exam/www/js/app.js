@@ -24,6 +24,12 @@ var app = angular.module('App', ['ionic', 'firebase', 'ngCordova', 'ngCordovaOau
         url: '/resetPassword',
         controller: 'ResetPasswordController',
         templateUrl: 'views/login/resetPassword.html'
+      })
+      // 프로필 화면
+      .state('profile', {
+        url: '/profile',
+        controller: 'ProfileController',
+        templateUrl: 'views/login/profile.html'
       });
 
     // 로그인 화면을 기본 뷰로 사용

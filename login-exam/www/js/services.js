@@ -226,8 +226,6 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
 
 
 
-
-
 // [유틸] localStorage사용을 위한 셋팅
   .factory('Localstorage', ['$window', function ($window) {
     return {

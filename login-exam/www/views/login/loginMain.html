@@ -10,21 +10,19 @@
       <button class="button button-block button-calm" ui-sref="signup">
         회원가입
       </button>
-      <button class="button button-block button-calm" ui-sref="signin">
-        회원정보수정
+      <button class="button button-block button-calm" ui-sref="profile">
+        회원정보
       </button>
       <button class="button button-block button-calm" ng-click="resign()">
         회원탈퇴
       </button>
-      <button class="button button-block button-calm">
-        그냥둘러보기
-      </button>
 
       <div class="item item-body">
         유저정보
-        <p> UID {{ user.uid }} </p>
-        <p> Email {{ user.email }} </p>
-        <p> DisplayName {{ user.displayName }} </p>
+        <p> UID <a ng-bind="user.user.uid"></a> </p>
+        <p> Email <a ng-bind="user.user.email"></a> </p>
+        <p> DisplayName <a ng-bind="user.user.displayName"></a> </p>
+        <p> {{gg}}</p>
       </div>
 
     </div>

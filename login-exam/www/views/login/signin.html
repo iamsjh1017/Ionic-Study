@@ -6,6 +6,7 @@
       이메일 로그인(메일 인증 필요)
       </label>
 
+      <form>
       <label class="item item-input">
         <input type="text" placeholder="Email" ng-model="useremail" required>
       </label>
@@ -13,6 +14,7 @@
       <label class="item item-input">
         <input type="password" placeholder="Password" ng-model="password" required>
       </label>
+      </form>
 
       <button class="button button-block button-balanced" ng-click="loginWithEmail(useremail, password, '/loginMain')">
         이메일 로그인
