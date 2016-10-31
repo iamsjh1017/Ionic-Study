@@ -1,6 +1,6 @@
 // TODO: 로그아웃, 정보변경, 회원탈퇴 등등
 // 회원 관련 서비스
-app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $http, MyPopup, Localstorage) {
+app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $http, MyPopup, Localstorage, DbService) {
   return {
     // 이메일 로그인 메소드
     loginWithEmail: function (useremail, password, redirectTo) {
@@ -20,22 +20,19 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
               return;
             }
             console.log('이메일 로그인 성공');
-            // TODO: 로그인 성공 후 MySQL DB에서 UID로 유저정보 가져와서 Localstorage에 유저정보 저장
-            var uid = result.uid;
-
-            Localstorage.setObject("user", result);
-
-            // 로그인 성공후 페이지 이동
-            $location.path(redirectTo);
+            var userUid = result.uid;
+            DbService.selectUserByUid(userUid, function (userData) {
+              console.log(userData);
+              Localstorage.setObject("user", userData);
+              $location.path(redirectTo);
+            });
           })
           .catch(function (error) {
             var errorCode = error.code;
             var errorMessage = error.message;
             if (errorCode === 'auth/wrong-password') {
-              console.log('로그인 실패 : 비밀번호가 잘못되었습니다.');
               MyPopup.show('로그인 실패', '비밀번호가 잘못되었습니다.');
             } else {
-              console.log('로그인 실패 : ' + errorMessage);
               MyPopup.show('로그인 실패', errorMessage);
             }
           });
@@ -55,16 +52,13 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
         $firebaseAuth().$signOut();
         MyPopup.show('알림', '로그아웃 되었습니다.');
       } else {
-
         switch (providerName) {
           case "google":
             if (ionic.Platform.isWebView()) {
               $cordovaOauth.google("506479374537-4o2pa5ghuj68ocudca9fbohmikfsth56.apps.googleusercontent.com" + "&include_profile=true", ["email", "profile"]).then(function (result) {
                 var credential = firebase.auth.GoogleAuthProvider.credential(result.id_token);
                 firebase.auth().signInWithCredential(credential).then(function (result) {
-                  MyPopup.show('알림', '구글 로그인성공');
-                  Localstorage.setObject('user', result.user);
-                  $location.path(redirectTo);
+
                 }, function (error) {
                   console.error("firebase: " + error);
                 });
@@ -76,9 +70,15 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
               provider.addScope('email');
               provider.addScope('profile');
               firebase.auth().signInWithPopup(provider).then(function (result) {
-                MyPopup.show('알림', '구글 로그인성공');
-                Localstorage.setObject('user', result.user);
-                $location.path(redirectTo);
+                DbService.insertUser(result.user, function () {
+                  // DB에서 유저정보 가져오기
+                  DbService.selectUserByUid(result.user.uid, function (userData) {
+                    console.log(userData);
+                    Localstorage.setObject("user", userData);
+                    MyPopup.show('알림', '구글 로그인성공');
+                    $location.path(redirectTo);
+                  });
+                })
               });
             }
             break;
@@ -103,9 +103,14 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
             } else {
               var provider = new firebase.auth.FacebookAuthProvider();
               firebase.auth().signInWithPopup(provider).then(function (result) {
-                MyPopup.show('알림', '페이스북 로그인성공');
-                Localstorage.setObject('user', result.user);
-                $location.path(redirectTo);
+                DbService.insertUser(result.user, function () {
+                  DbService.selectUserByUid(result.user.uid, function (userData) {
+                    console.log(userData);
+                    Localstorage.setObject("user", userData);
+                    MyPopup.show('알림', '페이스북 로그인성공');
+                    $location.path(redirectTo);
+                  });
+                })
               });
             }
             break;
@@ -127,9 +132,14 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
             } else {
               var provider = new firebase.auth.TwitterAuthProvider();
               firebase.auth().signInWithPopup(provider).then(function (result) {
-                MyPopup.show('알림', '트위터 로그인성공');
-                Localstorage.setObject('user', result.user);
-                $location.path(redirectTo);
+                DbService.insertUser(result.user, function () {
+                  DbService.selectUserByUid(result.user.uid, function (userData) {
+                    console.log(userData);
+                    Localstorage.setObject("user", userData);
+                    MyPopup.show('알림', '트위터 로그인성공');
+                    $location.path(redirectTo);
+                  });
+                })
               });
             }
             break;
@@ -150,33 +160,7 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
       console.log('회원가입');
       $firebaseAuth().$createUserWithEmailAndPassword(useremail, password)
         .then(function (result) {
-
-          // 회원정보 파싱
-          var uid = result.uid;
-          var email = result.email;
-          var photoURL = result.photoURL;
-          var providerId = result.providerId;
-          var providerData = result.providerData;
-
-          // 회원정보 DB 입력
-          $http({
-            url: 'http://localhost:3001/rscamper-server/app/user/insert',
-            method: 'POST',
-            data: $.param({
-              userUid: uid,
-              displayName: username,
-              email: email,
-              photoUrl: photoURL,
-              providerName: providerId,
-              providerUid: providerData.uid,
-              providerDisplayName: providerData.displayName,
-              providerPhotoUrl: providerData.photoUrl,
-              providerEmail: providerData.email
-            }),
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-            }
-          }).success(function () {
+          DbService.insertUser(result, function () {
             console.log('회원정보 DB입력 성공');
             // 인증 메일 발송
             firebase.auth().currentUser.sendEmailVerification().then(function () {
@@ -186,7 +170,7 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
               // 회원가입 완료후 로그인페이지로 이동
               $location.path(redirectTo);
             });
-          });
+          })
         })
         .catch(function (error) {
           console.log(error);
@@ -222,24 +206,11 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
 
     // 회원탈퇴 메소드
     resign: function () {
-      var user = firebase.auth().currentUser;
-      var uid = user.uid;
-      user.delete().then(function() {
-        $http({
-          url: 'http://localhost:3001/rscamper-server/app/user/delete',
-          method: 'DELETE',
-          data: $.param({
-            userUid: uid
-          }),
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-          }
-        }).success(function () {
-          MyPopup.show('성공', '회원탈퇴가 완료되었습니다.');
-          $firebaseAuth().$signOut();
-          Localstorage.remove('user');
-        });
-      }, function(error) {
+      var user = AuthService.getCurrentUser();
+      var userUid = user.uid;
+      user.delete().then(DbService.deleteUserByUid(userUid, function () {
+        MyPopup.show('성공', '회원탈퇴가 완료되었습니다.');
+      }), function(error) {
         MyPopup.show('에러', error);
       });
     },
@@ -250,6 +221,46 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
     }
   };
 })
+  .factory('DbService', ['$http', function ($http) {
+    var url = 'http://localhost:3001/rscamper-server/app';
+    return {
+      // 회원정보 입력 혹은 업데이트
+      insertUser: function (userData, successCB) {
+        $http({
+          url: url + '/user/insert',
+          method: 'POST',
+          data: $.param({
+            userUid: userData.uid,
+            displayName: userData.username,
+            email: userData.email,
+            photoUrl: userData.photoURL,
+            providerName: userData.providerId,
+            providerUid: userData.providerData.uid,
+            providerDisplayName: userData.providerData.displayName,
+            providerPhotoUrl: userData.providerData.photoUrl,
+            providerEmail: userData.providerData.email
+          }),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+          }
+        }).success(successCB);
+      },
+      // 회원정보 삭제
+      deleteUserByUid: function (userUid, successCB) {
+        $http({
+          url: url + '/user/delete?userUid=' + userUid,
+          method: 'GET'
+        }).success(successCB);
+      },
+      // 회원정보 UID로 조회
+      selectUserByUid: function (userUid, successCB) {
+        $http({
+          url: url + '/user/select/oneUser?userUid=' + userUid,
+          method: 'GET'
+        }).success(successCB);
+      }
+    }
+  }])
 
 // [유틸] localStorage사용을 위한 셋팅
   .factory('Localstorage', ['$window', function ($window) {
