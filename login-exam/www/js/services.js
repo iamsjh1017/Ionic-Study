@@ -1,4 +1,3 @@
-// TODO: 로그아웃, 정보변경, 회원탈퇴 등등
 // 회원 관련 서비스
 app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $http, MyPopup, Localstorage, DbService) {
   return {
@@ -6,10 +5,7 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
     loginWithEmail: function (useremail, password, redirectTo) {
       if ($firebaseAuth().$getAuth()) {
         $firebaseAuth().$signOut();
-        Localstorage.remove('user');
-        console.log('로그아웃');
-        $firebaseAuth().$signOut();
-        MyPopup.show('알림', '로그아웃 되었습니다.');
+        MyPopup.show('알림', '로그아웃');
       } else {
         $firebaseAuth().$signInWithEmailAndPassword(useremail, password)
           .then(function (result) {
@@ -23,7 +19,8 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
             var userUid = result.uid;
             DbService.selectUserByUid(userUid, function (userData) {
               console.log(userData);
-              Localstorage.setObject("user", userData);
+              MyPopup.show('알림', '로그인 성공');
+              Localstorage.setObject('user', userData);
               $location.path(redirectTo);
             });
           })
@@ -42,15 +39,9 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
     // 소셜 로그인 메소드
     loginWithSocial: function (providerName, redirectTo) {
 
-      // TODO: 소셜 로그인 메소드
-      // TODO: 로그인 성공 후 $localstorage에 인증 정보 저장
-      // TODO: MySQL DB 유저정보에 있는지 확인하고 있으면 UPDATE 없으면 INSERT
       if ($firebaseAuth().$getAuth()) {
         $firebaseAuth().$signOut();
-        Localstorage.remove('user');
-        console.log('로그아웃');
-        $firebaseAuth().$signOut();
-        MyPopup.show('알림', '로그아웃 되었습니다.');
+        MyPopup.show('알림', '로그아웃');
       } else {
         switch (providerName) {
           case "google":
@@ -58,9 +49,20 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
               $cordovaOauth.google("506479374537-4o2pa5ghuj68ocudca9fbohmikfsth56.apps.googleusercontent.com" + "&include_profile=true", ["email", "profile"]).then(function (result) {
                 var credential = firebase.auth.GoogleAuthProvider.credential(result.id_token);
                 firebase.auth().signInWithCredential(credential).then(function (result) {
-
+                  var user = firebase.auth().currentUser;
+                  var providerName = 'google';
+                  DbService.insertUser(user, user.displayName, providerName, function () {
+                    // DB에서 유저정보 가져오기
+                    DbService.selectUserByUid(user.uid, function (userData) {
+                      console.log(userData);
+                      Localstorage.setObject("user", userData);
+                      MyPopup.show('알림', '구글 로그인성공');
+                      $location.path(redirectTo);
+                    });
+                  })
                 }, function (error) {
                   console.error("firebase: " + error);
+                  MyPopup.show('실패', 'error');
                 });
               }, function (error) {
                 console.error("ERROR: " + error);
@@ -84,16 +86,12 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
             break;
 
           case "facebook":
-
             if (ionic.Platform.isWebView()) {
               // 페북에서 Oauth토근 가져와서
               $cordovaOauth.facebook("947628548702706", ["email"]).then(function (result) {
                 // Firebase에 토큰 가져가서 인증
                 $firebaseAuth().$authWithOAuthToken("facebook", result.access_token).then(function (authData) {
                   console.log("소셜로그인성공")
-                  console.log(JSON.stringify(authData));
-                  $localstorage.setObject('user', authData)
-                  $location.path('/loginMain');
                 }, function (error) {
                   console.error("ERROR: " + error);
                 });
@@ -149,10 +147,12 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
 
     // 로그아웃 메소드
     logout: function () {
-      $firebaseAuth().$signOut();
-      Localstorage.remove('user');
-      MyPopup.show('알림', '로그아웃 되었습니다.');
-      console.log('로그아웃');
+      if (firebase.auth().currentUser) {
+        $firebaseAuth().$signOut();
+        MyPopup.show('알림', '로그아웃');
+      } else {
+        MyPopup.show('에러', '로그인 되어있지 않습니다.');
+      };
     },
 
     // 이메일 회원가입 메소드
@@ -160,13 +160,13 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
       console.log('회원가입');
       $firebaseAuth().$createUserWithEmailAndPassword(useremail, password)
         .then(function (result) {
-          DbService.insertUser(result, function () {
+          var providerName = 'password';
+          DbService.insertUser(result, username, providerName, function () {
             console.log('회원정보 DB입력 성공');
             // 인증 메일 발송
             firebase.auth().currentUser.sendEmailVerification().then(function () {
               MyPopup.show('회원가입 성공', '계정 활성화를 위해 이메일 인증을 해주시기 바랍니다.');
               $firebaseAuth().$signOut();
-              Localstorage.remove('user');
               // 회원가입 완료후 로그인페이지로 이동
               $location.path(redirectTo);
             });
@@ -206,35 +206,49 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
 
     // 회원탈퇴 메소드
     resign: function () {
-      var user = AuthService.getCurrentUser();
-      var userUid = user.uid;
-      user.delete().then(DbService.deleteUserByUid(userUid, function () {
-        MyPopup.show('성공', '회원탈퇴가 완료되었습니다.');
-      }), function(error) {
-        MyPopup.show('에러', error);
-      });
+      var user = firebase.auth().currentUser;
+      if (user) {
+        var userUid = user.uid;
+        user.delete().then(DbService.deleteUserByUid(userUid, function () {
+          $firebaseAuth().$signOut();
+          MyPopup.show('성공', '회원탈퇴가 완료되었습니다.');
+        }), function (error) {
+          MyPopup.show('에러', error);
+        });
+      } else {
+        MyPopup.show('에러', '로그인 되어있지 않습니다.');
+      }
     },
 
-    // 회원정보 수정 메소드
-    update: function () {
+    // 프로필 사진 수정 메소드
+    updateProfilePhoto: function () {
+
+    },
+    // 배경사진 수정 메소드
+    updateBgPhoto : function () {
+
+    },
+    //회원정보 수정 메소드
+    updateProfile: function () {
 
     }
   };
 })
   .factory('DbService', ['$http', function ($http) {
-    var url = 'http://localhost:3001/rscamper-server/app';
+    var url = 'http://192.168.0.228:3001/rscamper-server/app';
     return {
       // 회원정보 입력 혹은 업데이트
-      insertUser: function (userData, successCB) {
+      insertUser: function (userData, displayName, providerName, successCB) {
+        console.log(userData.displayName);
         $http({
           url: url + '/user/insert',
           method: 'POST',
           data: $.param({
             userUid: userData.uid,
-            displayName: userData.username,
+            displayName: displayName,
             email: userData.email,
             photoUrl: userData.photoURL,
-            providerName: userData.providerId,
+            providerName: providerName,
             providerUid: userData.providerData.uid,
             providerDisplayName: userData.providerData.displayName,
             providerPhotoUrl: userData.providerData.photoUrl,
@@ -262,7 +276,7 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
     }
   }])
 
-// [유틸] localStorage사용을 위한 셋팅
+  // [유틸] localStorage사용을 위한 셋팅
   .factory('Localstorage', ['$window', function ($window) {
     return {
       set: function (key, value) {
@@ -295,9 +309,7 @@ app.factory('AuthService', function ($location, $firebaseAuth, $cordovaOauth, $h
           });
       },
       confirm: function (title, template) {
-        $ionicPopup.confirm({
-
-        })
+        $ionicPopup.confirm({})
           .then(function (res) {
           });
       }

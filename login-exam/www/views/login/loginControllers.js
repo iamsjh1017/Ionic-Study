@@ -9,7 +9,6 @@ app.controller('SigninController', function ($scope, AuthService) {
 // 회원가입 컨트롤러
   .controller('SignupController', function ($scope, AuthService) {
     // TODO: 회원가입 폼 유효성 검사
-
     $scope.register = AuthService.register;
   })
 

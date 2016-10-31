@@ -36,7 +36,7 @@ var app = angular.module('App', ['ionic', 'firebase', 'ngCordova', 'ngCordovaOau
     $urlRouterProvider.otherwise('/loginMain');
   })
 
-  .run(function ($ionicPlatform) {
+  .run(function ($ionicPlatform, $firebaseAuth, Localstorage, DbService, MyPopup) {
     $ionicPlatform.ready(function () {
       if (window.cordova && window.cordova.plugins.Keyboard) {
         cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
@@ -45,4 +45,13 @@ var app = angular.module('App', ['ionic', 'firebase', 'ngCordova', 'ngCordovaOau
         StatusBar.styleDefault();
       }
     });
+
+    // 로그인 로그아웃처리
+    $firebaseAuth().$onAuthStateChanged(function (user) {
+      if (user) {
+
+      } else {
+        Localstorage.remove('user');
+      }
+    })
   });
