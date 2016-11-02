@@ -11,7 +11,7 @@ angular.module('App', ['ionic'])
             })
             // 설정 뷰를 위한 상태 선언
             .state('settings', {
-                url: '/settings',
+            url: '/settings',
                 controller: 'SettingsController',
                 templateUrl: 'views/settings/settings.html'
             })
